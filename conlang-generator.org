@@ -1,0 +1,314 @@
+#+title: Conlang Generator
+#+author: William Ball
+#+email: williampi103@gmail.com
+* Syntax
+The syntax module is based on the minimalist program and distributed
+morphology. The idea is to have a list of roots and list of features
+per language. Then we can construct trees out of those items before
+literally handing the trees off to the interfaces.
+** Features
+*** Specification
+Features are lists beginning with =i= or =u=, then continuing with the
+name of the feature, and finally its value if the feature is
+valued. Some examples are shown below. We will consider the EPP
+feature to be an interpretable but unvalued feature. It gets its value
+by having its specifier filled as usual. The value doesn't
+particularly matter, but we will make it =#t=.
+#+begin_src scheme
+  (u case)
+  (i tense present)
+  (i EPP)
+  (i EPP #t)
+#+end_src
+
+*** Implementation
+We would like some handy utility functions for working with
+features.
+#+begin_src scheme :tangle ./syntax/features/features.scm :mkdirp yes
+  (define-library features
+    (import scheme
+            (chicken base))
+    (export feature-type
+            feature-valued?
+            feature-interpretable?
+            feature-value
+            make-feature
+            feature-match?
+            matching-features)
+    (include "./syntax/features/features-implementation.scm"))
+#+end_src
+
+**** Accessors
+So that we don't have to remember implementation particulars, accessors are handy.
+#+begin_src scheme :tangle ./syntax/features/features-implementation.scm :mkdirp yes
+  (define feature-type cadr)
+  (define (feature-valued? feature) (not (null? (cddr feature))))
+  (define (feature-interpretable? feature) (eq? (car feature) 'i))
+  (define (feature-value feature) (if (feature-valued? feature)
+                                      (caddr feature)
+                                      '()))
+#+end_src
+
+**** Constructor
+Likewise, having a function to make features is also handy.
+#+begin_src scheme :tangle ./syntax/features/features-implementation.scm :mkdirp yes
+  (define (make-feature interpretable type . values)
+    (if (null? values)
+        (list (if interpretable 'i 'u) type)
+        (list (if interpretable 'i 'u) type
+              (if (null? (cdr values))
+                  (car values)
+                  (error
+                   "Expected (make-feature interpretable type <value>)")))))
+#+end_src
+
+**** Feature comparison
+A common operation on features is taking two lists of features and
+seeing if there are any /matches/ between them. By /match/, I mean an
+interpretable, valued feature in one list, and a corresponding
+uninterpretable, unvalued feature of the same type in the other
+list. The function =feature-match= takes features and returns a boolean
+equal to whether or not the two features match.
+#+begin_src scheme :tangle ./syntax/features/features-implementation.scm :mkdirp yes
+  (define (feature-match? feature1 feature2)
+    (and (eq? (feature-type feature1) (feature-type feature2))
+         (or (and
+              (and (feature-interpretable? feature1)
+                   (feature-valued? feature1))
+              (and (not (feature-interpretable? feature2))
+                   (not (feature-valued? feature2))))
+             (and
+              (and (feature-interpretable? feature2)
+                   (feature-valued? feature2))
+              (and (not (feature-interpretable? feature1))
+                   (not (feature-valued? feature1)))))))
+#+end_src
+
+The function =matching-features=, on the other hand, takes two lists of
+features and returns a list consisting of pairs of matching
+features. I'm not a huge fan of this implementation, but whatever.
+#+begin_src scheme :tangle ./syntax/features/features-implementation.scm :mkdirp yes
+  (define (matching-features feature-list-1 feature-list-2)
+    (if (null? feature-list-1)
+        '()
+        (let* ([feature (car feature-list-1)]
+               [first-feature-match
+                (let loop ([features feature-list-2])
+                  (cond
+                   [(null? features) #f]
+                   [(feature-match? feature (car features))
+                    (cons feature (car features))]
+                   [else (loop (cdr features))]))])
+          (if first-feature-match
+              (cons first-feature-match (matching-features (cdr feature-list-1) feature-list-2))
+              (matching-features (cdr feature-list-1) feature-list-2)))))
+
+#+end_src
+*** Tests
+Tests are always handy and good.
+#+begin_src scheme :tangle ./syntax/features/features-test.scm :mkdirp yes
+  #! /usr/bin/chicken-csi -script
+
+  (import features (srfi 64))
+
+  (test-begin "features-test")
+
+  (define epp (make-feature #t 'EPP))
+  (test-eq "epp valued" #f (feature-valued? epp))
+  (test-eq "epp value" '() (feature-value epp))
+  (test-eq "epp interpretable" #t (feature-interpretable? epp))
+  (test-eq "epp type" 'EPP (feature-type epp))
+
+  (define tense (make-feature #t 'tense 'present))
+  (test-eq "tense valued" #t (feature-valued? tense))
+  (test-eq "tense value" 'present (feature-value tense))
+  (test-eq "tense interpretable" #t (feature-interpretable? tense))
+  (test-eq "tense type" 'tense (feature-type tense))
+
+  (define case (make-feature #f 'case))
+  (test-eq "case valued" #f (feature-valued? case))
+  (test-eq "case value" '() (feature-value case))
+  (test-eq "case interpretable" #f (feature-interpretable? case))
+  (test-eq "case type" 'case (feature-type case))
+
+  (test-assert "feature-match?"
+    (feature-match?
+     (make-feature #f 'case)
+     (make-feature #t 'case 'nominative)))
+
+  (define det
+    (list (make-feature #f 'case)
+          (make-feature #f 'number)
+          (make-feature #f 'gender)))
+
+  (define noun
+    (list (make-feature #f 'case)
+          (make-feature #t 'gender 'neuter)
+          (make-feature #t 'number 'singular)))
+
+  (test-equal "matching-features"
+    (list (cons (make-feature #f 'number)
+                (make-feature #t 'number 'singular))
+          (cons (make-feature #f 'gender)
+                (make-feature #t 'gender 'neuter)))
+    (matching-features det noun))
+
+  (test-end)
+#+end_src
+** Nodes
+*** Specification
+Nodes consist of a type followed by a list of features. Some examples
+are shown below.
+#+begin_src scheme
+  (T
+   ((EPP)
+    (i tense present)))
+  (n
+   ((u case)
+    (i number singular)
+    (i person third)))
+  (v
+   ((u tense)
+    (u person)
+    (u number)))
+#+end_src
+
+*** Implementation
+We will need some utility functions for working with nodes. We want a
+predicate =node?= to tell if something is a node or not. Likewise, we
+want =node-features= and =node-type= in order to extract the features from
+a node. Additionally, extracting only the unvalued or uninterpretable
+features is also useful, hence =node-unvalued-features= and
+=node-uninterpretable-features=. Finally, a constructor is always
+useful.
+#+begin_src scheme :tangle ./syntax/node/node.scm :mkdirp yes
+  (define-library node
+    (import scheme
+            features
+            (chicken base)
+            (srfi 1))
+    (export node?
+            node-features
+            node-type
+            node-unvalued-features
+            node-uninterpretable-features
+            make-node)
+    (begin
+      (define (node? node)
+        (and (list? node) (symbol? (car node)) (list? (cdr node))))
+      (define node-features cdr)
+      (define node-type car)
+      (define (node-unvalued-features node)
+        (filter (compose not feature-valued?) (node-features node)))
+      (define (node-uninterpretable-features node)
+        (filter (compose not feature-interpretable?) (node-features node)))
+      (define (make-node type . features)
+        (apply list (cons type features)))))
+#+end_src
+
+*** Test
+As always, tests are generally a good idea.
+#+begin_src scheme :tangle ./syntax/node/node-test.scm :mkdirp yes
+  #! /usr/bin/chicken-csi -script
+
+  (import node features (srfi 64))
+
+  (test-begin "node-test")
+
+  (define cat (make-node 'CAT))
+  (test-assert "node cat" (node? cat))
+  (test-eq "node-features cat" '() (node-features cat))
+  (test-eq "node-type cat" 'CAT (node-type cat))
+  (test-eq "node-unvalued-features cat" '() (node-unvalued-features cat))
+  (test-eq "node-uninterpretable-features cat" '() (node-uninterpretable-features cat))
+
+  (define t (make-node 'T
+                       (make-feature #t 'tense 'present)
+                       (make-feature #f 'number)
+                       (make-feature #f 'person)))
+  (test-assert "node t" (node? t))
+  (test-equal "node-features t"
+    (list (make-feature #t 'tense 'present)
+          (make-feature #f 'number)
+          (make-feature #f 'person))
+    (node-features t))
+  (test-eq "node-type t" 'T (node-type t))
+  (test-equal "node-unvalued-features t"
+    (list (make-feature #f 'number)
+          (make-feature #f 'person))
+    (node-unvalued-features t))
+  (test-equal "node-uninterpretable-features t"
+    (list (make-feature #f 'number)
+          (make-feature #f 'person))
+    (node-uninterpretable-features t))
+
+  (test-end)
+#+end_src
+** Tree Construction
+This module will be responsible for handling =Merge= and =Agree= and stuff
+like that.
+#+begin_src scheme :tangle ./syntax/tree/tree.scm :mkdirp yes
+  (define-library tree
+    (import scheme node features (chicken base))
+    (export merge agree match-features)
+    (include "./syntax/tree/tree-implementation.scm"))
+#+end_src
+*** Merge
+=Merge= is simple enough. Rather than messing around with sets, which is
+unnecessarily complicated in scheme, we can just =cons= the two nodes
+together. This allows us to distinguish nodes as defined above from
+subtrees, since =(list? node)= is true while =(list? subtree)= is false.
+#+begin_src scheme :tangle ./syntax/tree/tree-implementation.scm :mkdirp yes
+  (define (merge a b) (cons a b))
+#+end_src
+*** Agree
+Agree is quite a bit trickier. Since scheme doesn't really have
+pointers, we can't handle =Agree= the way it usually is handled. We need
+to find the goal and do the =Agree= operation at the same time given a
+particular goal, here assumed to be the =car= of =tree=.
+#+begin_src scheme :tangle ./syntax/tree/tree-implementation.scm :mkdirp yes
+  (define (match-features probe goal)
+    (let* ([probe-features (node-features probe)]
+           [goal-features (node-features goal)]
+           [common (matching-features probe-features goal-features)])
+      (apply make-node
+             (cons (node-type goal)
+                   (let loop ([features '()] [common common])
+                     (if (null? common)
+                         features
+                         (let ([feature (car common)])
+                           (loop
+                            (cons
+                             (make-feature
+                              (feature-interpretable? (car feature))
+                              (feature-type (car feature))
+                              (feature-value (cdr feature)))
+                             features)
+                            (cdr common)))))))))
+
+  (define (agree tree)
+    (let ([probe (car tree)])
+      (let loop ([current (cdr tree)])
+        (cond
+         [(pair? current)
+          (cons (loop (car current))
+                (loop (cdr current)))]
+         [(node? current)
+          (match-features probe current)]
+         [else (error "something weird happened")]))))
+#+end_src
+* Main module
+We need a main module. Right now, since everything is a bit of a work
+in progress, it can be quite bare. This is really just so that =csm= can
+compile everything.
+#+begin_src scheme :tangle ./conlang-generator.scm :mkdirp yes
+  (define-library conlang-generator
+    (import scheme tree features node)
+    (begin
+      (display
+       (match-features
+        (make-node 'V (make-feature #f 'mood) (make-feature #f 'tense))
+        (make-node 'T (make-feature #t 'tense 'present)
+                   (make-feature #t 'mood 'subjunctive))))
+      (newline)))
+#+end_src

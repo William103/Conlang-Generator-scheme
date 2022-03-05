@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2022-02-19 Sat 23:54 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conlang Generator</title>
+<meta name="author" content="William Ball" />
+<meta name="generator" content="Org Mode" />
+<style>
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Conlang Generator</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orge4443f6">1. Syntax</a>
+<ul>
+<li><a href="#orgbfa01ca">1.1. Features</a>
+<ul>
+<li><a href="#orge956898">1.1.1. Specification</a></li>
+<li><a href="#org297ddb9">1.1.2. Implementation</a></li>
+<li><a href="#orge059f86">1.1.3. Tests</a></li>
+</ul>
+</li>
+<li><a href="#org2991e63">1.2. Nodes</a>
+<ul>
+<li><a href="#org98c98c5">1.2.1. Specification</a></li>
+<li><a href="#orgff726ce">1.2.2. Implementation</a></li>
+<li><a href="#org543b035">1.2.3. Test</a></li>
+</ul>
+</li>
+<li><a href="#orgbb3ac1c">1.3. Tree Construction</a>
+<ul>
+<li><a href="#org81896c6">1.3.1. Merge</a></li>
+<li><a href="#orgc8e9339">1.3.2. Agree</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org25c31e3">2. Main module</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge4443f6" class="outline-2">
+<h2 id="orge4443f6"><span class="section-number-2">1.</span> Syntax</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The syntax module is based on the minimalist program and distributed
+morphology. The idea is to have a list of roots and list of features
+per language. Then we can construct trees out of those items before
+literally handing the trees off to the interfaces.
+</p>
+</div>
+<div id="outline-container-orgbfa01ca" class="outline-3">
+<h3 id="orgbfa01ca"><span class="section-number-3">1.1.</span> Features</h3>
+<div class="outline-text-3" id="text-1-1">
+</div>
+<div id="outline-container-orge956898" class="outline-4">
+<h4 id="orge956898"><span class="section-number-4">1.1.1.</span> Specification</h4>
+<div class="outline-text-4" id="text-1-1-1">
+<p>
+Features are lists beginning with <code>i</code> or <code>u</code>, then continuing with the
+name of the feature, and finally its value if the feature is
+valued. Some examples are shown below. We will consider the EPP
+feature to be an interpretable but unvalued feature. It gets its value
+by having its specifier filled as usual. The value doesn&rsquo;t
+particularly matter, but we will make it <code>#t</code>.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(u case)
+(i tense present)
+(i EPP)
+(i EPP #t)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org297ddb9" class="outline-4">
+<h4 id="org297ddb9"><span class="section-number-4">1.1.2.</span> Implementation</h4>
+<div class="outline-text-4" id="text-1-1-2">
+<p>
+We would like some handy utility functions for working with
+features.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define-library features
+  (import scheme
+	  (chicken base))
+  (export feature-type
+	  feature-valued?
+	  feature-interpretable?
+	  feature-value
+	  make-feature
+	  feature-match?
+	  matching-features)
+  (include "./syntax/features/features-implementation.scm"))
+</pre>
+</div>
+</div>
+
+<ol class="org-ol">
+<li><a id="org7f78b16"></a>Accessors<br />
+<div class="outline-text-5" id="text-1-1-2-1">
+<p>
+So that we don&rsquo;t have to remember implementation particulars, accessors are handy.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define feature-type cadr)
+(define (feature-valued? feature) (not (null? (cddr feature))))
+(define (feature-interpretable? feature) (eq? (car feature) 'i))
+(define (feature-value feature) (if (feature-valued? feature)
+				    (caddr feature)
+				    '()))
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="org2b38792"></a>Constructor<br />
+<div class="outline-text-5" id="text-1-1-2-2">
+<p>
+Likewise, having a function to make features is also handy.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define (make-feature interpretable type . values)
+  (if (null? values)
+      (list (if interpretable 'i 'u) type)
+      (list (if interpretable 'i 'u) type
+	    (if (null? (cdr values))
+		(car values)
+		(error
+		 "Expected (make-feature interpretable type &lt;value&gt;)")))))
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="org198b824"></a>Feature comparison<br />
+<div class="outline-text-5" id="text-1-1-2-3">
+<p>
+A common operation on features is taking two lists of features and
+seeing if there are any <i>matches</i> between them. By <i>match</i>, I mean an
+interpretable, valued feature in one list, and a corresponding
+uninterpretable, unvalued feature of the same type in the other
+list. The function <code>feature-match</code> takes features and returns a boolean
+equal to whether or not the two features match.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define (feature-match? feature1 feature2)
+  (and (eq? (feature-type feature1) (feature-type feature2))
+       (or (and
+	    (and (feature-interpretable? feature1)
+		 (feature-valued? feature1))
+	    (and (not (feature-interpretable? feature2))
+		 (not (feature-valued? feature2))))
+	   (and
+	    (and (feature-interpretable? feature2)
+		 (feature-valued? feature2))
+	    (and (not (feature-interpretable? feature1))
+		 (not (feature-valued? feature1)))))))
+</pre>
+</div>
+
+<p>
+The function <code>matching-features</code>, on the other hand, takes two lists of
+features and returns a list consisting of pairs of matching
+features. I&rsquo;m not a huge fan of this implementation, but whatever.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define (matching-features feature-list-1 feature-list-2)
+  (if (null? feature-list-1)
+      '()
+      (let* ([feature (car feature-list-1)]
+	     [first-feature-match
+	      (let loop ([features feature-list-2])
+		(cond
+		 [(null? features) #f]
+		 [(feature-match? feature (car features))
+		  (cons feature (car features))]
+		 [else (loop (cdr features))]))])
+	(if first-feature-match
+	    (cons first-feature-match (matching-features (cdr feature-list-1) feature-list-2))
+	    (matching-features (cdr feature-list-1) feature-list-2)))))
+
+</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div id="outline-container-orge059f86" class="outline-4">
+<h4 id="orge059f86"><span class="section-number-4">1.1.3.</span> Tests</h4>
+<div class="outline-text-4" id="text-1-1-3">
+<p>
+Tests are always handy and good.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">#! /usr/bin/chicken-csi -script
+
+(import features (srfi 64))
+
+(test-begin "features-test")
+
+(define epp (make-feature #t 'EPP))
+(test-eq "epp valued" #f (feature-valued? epp))
+(test-eq "epp value" '() (feature-value epp))
+(test-eq "epp interpretable" #t (feature-interpretable? epp))
+(test-eq "epp type" 'EPP (feature-type epp))
+
+(define tense (make-feature #t 'tense 'present))
+(test-eq "tense valued" #t (feature-valued? tense))
+(test-eq "tense value" 'present (feature-value tense))
+(test-eq "tense interpretable" #t (feature-interpretable? tense))
+(test-eq "tense type" 'tense (feature-type tense))
+
+(define case (make-feature #f 'case))
+(test-eq "case valued" #f (feature-valued? case))
+(test-eq "case value" '() (feature-value case))
+(test-eq "case interpretable" #f (feature-interpretable? case))
+(test-eq "case type" 'case (feature-type case))
+
+(test-assert "feature-match?"
+  (feature-match?
+   (make-feature #f 'case)
+   (make-feature #t 'case 'nominative)))
+
+(define det
+  (list (make-feature #f 'case)
+	(make-feature #f 'number)
+	(make-feature #f 'gender)))
+
+(define noun
+  (list (make-feature #f 'case)
+	(make-feature #t 'gender 'neuter)
+	(make-feature #t 'number 'singular)))
+
+(test-equal "matching-features"
+  (list (cons (make-feature #f 'number)
+	      (make-feature #t 'number 'singular))
+	(cons (make-feature #f 'gender)
+	      (make-feature #t 'gender 'neuter)))
+  (matching-features det noun))
+
+(test-end)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org2991e63" class="outline-3">
+<h3 id="org2991e63"><span class="section-number-3">1.2.</span> Nodes</h3>
+<div class="outline-text-3" id="text-1-2">
+</div>
+<div id="outline-container-org98c98c5" class="outline-4">
+<h4 id="org98c98c5"><span class="section-number-4">1.2.1.</span> Specification</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+Nodes consist of a type followed by a list of features. Some examples
+are shown below.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(T
+ ((EPP)
+  (i tense present)))
+(n
+ ((u case)
+  (i number singular)
+  (i person third)))
+(v
+ ((u tense)
+  (u person)
+  (u number)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgff726ce" class="outline-4">
+<h4 id="orgff726ce"><span class="section-number-4">1.2.2.</span> Implementation</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+We will need some utility functions for working with nodes. We want a
+predicate <code>node?</code> to tell if something is a node or not. Likewise, we
+want <code>node-features</code> and <code>node-type</code> in order to extract the features from
+a node. Additionally, extracting only the unvalued or uninterpretable
+features is also useful, hence <code>node-unvalued-features</code> and
+<code>node-uninterpretable-features</code>. Finally, a constructor is always
+useful.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define-library node
+  (import scheme
+	  features
+	  (chicken base)
+	  (srfi 1))
+  (export node?
+	  node-features
+	  node-type
+	  node-unvalued-features
+	  node-uninterpretable-features
+	  make-node)
+  (begin
+    (define (node? node)
+      (and (list? node) (symbol? (car node)) (list? (cdr node))))
+    (define node-features cdr)
+    (define node-type car)
+    (define (node-unvalued-features node)
+      (filter (compose not feature-valued?) (node-features node)))
+    (define (node-uninterpretable-features node)
+      (filter (compose not feature-interpretable?) (node-features node)))
+    (define (make-node type . features)
+      (apply list (cons type features)))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org543b035" class="outline-4">
+<h4 id="org543b035"><span class="section-number-4">1.2.3.</span> Test</h4>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+As always, tests are generally a good idea.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">#! /usr/bin/chicken-csi -script
+
+(import node features (srfi 64))
+
+(test-begin "node-test")
+
+(define cat (make-node 'CAT))
+(test-assert "node cat" (node? cat))
+(test-eq "node-features cat" '() (node-features cat))
+(test-eq "node-type cat" 'CAT (node-type cat))
+(test-eq "node-unvalued-features cat" '() (node-unvalued-features cat))
+(test-eq "node-uninterpretable-features cat" '() (node-uninterpretable-features cat))
+
+(define t (make-node 'T
+		     (make-feature #t 'tense 'present)
+		     (make-feature #f 'number)
+		     (make-feature #f 'person)))
+(test-assert "node t" (node? t))
+(test-equal "node-features t"
+  (list (make-feature #t 'tense 'present)
+	(make-feature #f 'number)
+	(make-feature #f 'person))
+  (node-features t))
+(test-eq "node-type t" 'T (node-type t))
+(test-equal "node-unvalued-features t"
+  (list (make-feature #f 'number)
+	(make-feature #f 'person))
+  (node-unvalued-features t))
+(test-equal "node-uninterpretable-features t"
+  (list (make-feature #f 'number)
+	(make-feature #f 'person))
+  (node-uninterpretable-features t))
+
+(test-end)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbb3ac1c" class="outline-3">
+<h3 id="orgbb3ac1c"><span class="section-number-3">1.3.</span> Tree Construction</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+This module will be responsible for handling <code>Merge</code> and <code>Agree</code> and stuff
+like that.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define-library tree
+  (import scheme node features (chicken base))
+  (export merge agree match-features)
+  (include "./syntax/tree/tree-implementation.scm"))
+</pre>
+</div>
+</div>
+<div id="outline-container-org81896c6" class="outline-4">
+<h4 id="org81896c6"><span class="section-number-4">1.3.1.</span> Merge</h4>
+<div class="outline-text-4" id="text-1-3-1">
+<p>
+<code>Merge</code> is simple enough. Rather than messing around with sets, which is
+unnecessarily complicated in scheme, we can just <code>cons</code> the two nodes
+together. This allows us to distinguish nodes as defined above from
+subtrees, since <code>(list? node)</code> is true while <code>(list? subtree)</code> is false.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define (merge a b) (cons a b))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc8e9339" class="outline-4">
+<h4 id="orgc8e9339"><span class="section-number-4">1.3.2.</span> Agree</h4>
+<div class="outline-text-4" id="text-1-3-2">
+<p>
+Agree is quite a bit trickier. Since scheme doesn&rsquo;t really have
+pointers, we can&rsquo;t handle <code>Agree</code> the way it usually is handled. We need
+to find the goal and do the <code>Agree</code> operation at the same time given a
+particular goal, here assumed to be the <code>car</code> of <code>tree</code>.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define (match-features probe goal)
+  (let* ([probe-features (node-features probe)]
+	 [goal-features (node-features goal)]
+	 [common (matching-features probe-features goal-features)])
+    (apply make-node
+	   (cons (node-type goal)
+		 (let loop ([features '()] [common common])
+		   (if (null? common)
+		       features
+		       (let ([feature (car common)])
+			 (loop
+			  (cons
+			   (make-feature
+			    (feature-interpretable? (car feature))
+			    (feature-type (car feature))
+			    (feature-value (cdr feature)))
+			   features)
+			  (cdr common)))))))))
+
+(define (agree tree)
+  (let ([probe (car tree)])
+    (let loop ([current (cdr tree)])
+      (cond
+       [(pair? current)
+	(cons (loop (car current))
+	      (loop (cdr current)))]
+       [(node? current)
+	(match-features probe current)]
+       [else (error "something weird happened")]))))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org25c31e3" class="outline-2">
+<h2 id="org25c31e3"><span class="section-number-2">2.</span> Main module</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+We need a main module. Right now, since everything is a bit of a work
+in progress, it can be quite bare. This is really just so that <code>csm</code> can
+compile everything.
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">(define-library conlang-generator
+  (import scheme tree features node)
+  (begin
+    (display
+     (match-features
+      (make-node 'V (make-feature #f 'mood) (make-feature #f 'tense))
+      (make-node 'T (make-feature #t 'tense 'present)
+		 (make-feature #t 'mood 'subjunctive))))
+    (newline)))
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: William Ball</p>
+<p class="date">Created: 2022-02-19 Sat 23:54</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
